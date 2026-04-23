@@ -4,21 +4,12 @@ using ULTRAKILL;
 using UnityEngine;
 namespace TEMPESTCore
 {
-    public class SetFollowToEnemyIdentifierTarget
+    public class SetFollowToEnemyIdentifierTarget : ActiveStateChecker
     {
         public Follow follow;
         public EnemyIdentifier targetIdentifier;
-        [Tooltip("Set Target OnStart?")]
-        public bool onStart;
 
-
-        private void Start()
-        {
-            if (onStart)
-            {
-                SetTarget();
-            }
-        }
+        public override void FireBehavior() => SetTarget();
 
         public void SetTarget()
         {
@@ -27,7 +18,6 @@ namespace TEMPESTCore
 
             if (targetIdentifier == null)
                 throw new NullReferenceException("TargetIdentifier is null! cannot set follow Target if it's null!");
-
 
             follow.target = targetIdentifier.target.targetTransform;
         }

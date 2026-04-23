@@ -5,21 +5,12 @@ using UnityEngine;
 
 namespace TEMPESTCore
 {
-    public class SetALACTargetToEnemyIDTarget
+    public class SetALACTargetToEnemyIDTarget : ActiveStateChecker
     {
         public AlwaysLookAtCamera alwaysLookAtCamera;
         public EnemyIdentifier targetIdentifier;
-        [Tooltip("Set Target OnStart?")]
-        public bool onStart;
 
-
-        private void Start()
-        {
-            if (onStart)
-            {
-                SetTarget();
-            }
-        }
+        public override void FireBehavior() => SetTarget();
 
         public void SetTarget()
         {

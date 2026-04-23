@@ -5,12 +5,11 @@ using UnityEngine;
 
 namespace TEMPESTCore
 {
-    public class InstantiateToEnemyIdentifierTarget : MonoBehaviour
+    public class InstantiateToEnemyIdentifierTarget : ActiveStateChecker
     {
         [Tooltip("Enemy Identifier that has the target we're using.")]
         public EnemyIdentifier enemyIdentifier;
-        [Tooltip("Attempt instantiation on Start()?")]
-        public bool doOnStart;
+        
         [Tooltip("Object to Instantiate")]
         public GameObject toSpawn;
         [Tooltip("Does the instantiated object parent itself to the EID target in the Hierarchy?")]
@@ -23,13 +22,8 @@ namespace TEMPESTCore
         [Header("Ultrakill Event")]
         public UltrakillEvent onInstantiate = new UltrakillEvent();
 
-        private void Start()
-        {
-            if (doOnStart)
-                InstantiateOnEnemyIDTarget();
-        }
 
-
+        public override void FireBehavior() => InstantiateOnEnemyIDTarget();
         /// <summary>
         /// Instantiates the toSpawn GameObject onto the EnemyIdentifier's target, either at their position
         /// </summary>
@@ -66,5 +60,7 @@ namespace TEMPESTCore
         {
             enemyIdentifier = selfIdentifier;
         }
+
+      
     }
 }

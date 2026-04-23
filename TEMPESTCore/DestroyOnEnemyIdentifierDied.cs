@@ -5,12 +5,12 @@ using UnityEngine;
 
 namespace TEMPESTCore
 {
-    public class DestroyOnEnemyIdentifierDied : MonoBehaviour
+    public class DestroyOnEnemyIdentifierDied : ActiveStateChecker
     {
         public EnemyIdentifier enemyIdentifier;
-        [Tooltip("Attempt DestroyIfDead() on Start()?")]
-        public bool onStart;
-        public bool onUpdate;
+
+
+        public override void FireBehavior() => DestroyIfDead();
 
         public void DestroyIfDead()
         {
@@ -19,19 +19,6 @@ namespace TEMPESTCore
 
             if (enemyIdentifier.dead)
                 Destroy(this.gameObject);
-        }
-
-
-        private void Start()
-        {
-            if (onStart)
-                DestroyIfDead();
-        }
-
-        private void Update()
-        {
-            if (onUpdate)
-                DestroyIfDead();
         }
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace TEMPESTCore
 {
+    [CreateAssetMenu(fileName = "Style Action Object", menuName = "TEMPEST/StyleAction")]
     public class StyleActionSO : ScriptableObject
     {
         [Tooltip("What the Style Action is being registered as i.e wideWade.Discombobulated")]

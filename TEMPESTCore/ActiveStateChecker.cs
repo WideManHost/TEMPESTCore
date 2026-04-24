@@ -15,24 +15,21 @@ namespace TEMPESTCore
         [Tooltip("Does this check on every Update()?")]
         public bool onUpdate;
 
-        private Action onUpdateAction;
-
         private void Start()
         {
             if (onStart)
             {
                 OnStart();
             }
-
-            if (onUpdate)
-            {
-                onUpdateAction += OnUpdate;
-            }
         }
 
+      
         private void Update()
         {
-            onUpdateAction?.Invoke();
+            if (onUpdate)
+            {
+                OnUpdate();
+            }
         }
 
         // go my subclasses, give this a purpose

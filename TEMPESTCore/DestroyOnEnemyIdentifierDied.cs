@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ULTRAKILL;
 using UnityEngine;
 
-namespace TEMPESTCore
+namespace WideUtilities
 {
     public class DestroyOnEnemyIdentifierDied : ActiveStateChecker
     {

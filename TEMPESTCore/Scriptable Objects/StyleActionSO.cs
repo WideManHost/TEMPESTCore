@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ULTRAKILL;
 using UnityEngine;
 
-namespace TEMPESTCore
+namespace WideUtilities
 {
     [CreateAssetMenu(fileName = "Style Action Object", menuName = "TEMPEST/StyleAction")]
     public class StyleActionSO : ScriptableObject

@@ -2,7 +2,7 @@
 using ULTRAKILL;
 using UnityEngine;
 
-namespace TEMPESTCore
+namespace WideUtilities
 {
     /// <summary>
     /// Like InstantiateObject but targets an enemy instead

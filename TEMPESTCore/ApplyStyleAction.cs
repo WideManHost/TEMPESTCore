@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ULTRAKILL;
 using UnityEngine;
 
-namespace TEMPESTCore
+namespace WideUtilities
 {
     /// <summary>
     /// Applies a style action, registers the style action if its not already registered.

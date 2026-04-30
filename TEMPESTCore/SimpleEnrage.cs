@@ -5,6 +5,7 @@ namespace TEMPESTCore
     public class SimpleEnrage : MonoBehaviour, IEnrage
     {
         [SerializeField] private EnemyIdentifier _eid;
+        [SerializeField] private Enemy _en;
         public bool readyToEnrage = true;
         public bool enraged;
         public bool isEnraged => this.enraged;
@@ -39,6 +40,8 @@ namespace TEMPESTCore
 
         private void Awake()
         {
+            this._eid = this.GetComponent<EnemyIdentifier>();
+            this._en = this.GetComponent<Enemy>();
             this.ensims = this.GetComponentsInChildren<EnemySimplifier>();
         }
 

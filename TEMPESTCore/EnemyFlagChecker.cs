@@ -7,17 +7,17 @@ namespace TEMPESTCore
     public class EnemyFlagChecker
     {
         [SerializeField] private EnemyIdentifier _eid;
-        [SerializeField] private Enemy _enemy;
+        [SerializeField] private SimpleEnrage _simEnrage;
 
         public EnemyIdentifier EID => _eid;
-        public Enemy Enemy => _enemy;
+        public SimpleEnrage Enemy => _simEnrage;
 
         public EnemyFlagChecker() { }
 
-        public EnemyFlagChecker(EnemyIdentifier eid, Enemy enemy)
+        public EnemyFlagChecker(EnemyIdentifier eid, SimpleEnrage enemy)
         {
             _eid = eid;
-            _enemy = enemy;
+            _simEnrage = enemy;
         }
 
         public bool CheckForFlags(EnemyEventFlags flags)
@@ -63,7 +63,7 @@ namespace TEMPESTCore
 
             if (HasFlag(flags, EnemyEventFlags.IfEnraged))
             {
-                bool isEnraged = _enemy != null && _enemy.isEnraged;
+                bool isEnraged = _simEnrage != null && _simEnrage.isEnraged;
                 if (!isEnraged)
                     return false;
             }
@@ -76,10 +76,10 @@ namespace TEMPESTCore
             return (allFlags & flagToCheck) == flagToCheck;
         }
 
-        public void SetReferences(EnemyIdentifier eid, Enemy enemy)
+        public void SetReferences(EnemyIdentifier eid, SimpleEnrage enemy)
         {
             _eid = eid;
-            _enemy = enemy;
+            _simEnrage = enemy;
         }
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-namespace WideUtilities
+namespace TEMPESTCore
 {
     public class SimpleEnrage : MonoBehaviour, IEnrage
     {

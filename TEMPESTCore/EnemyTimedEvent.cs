@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using UnityEngine;
 
-namespace WideUtilities
+namespace TEMPESTCore
 {
     [System.Serializable]
     public class EnemyTimedEvent

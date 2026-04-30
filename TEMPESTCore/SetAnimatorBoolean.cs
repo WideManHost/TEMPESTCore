@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-namespace WideUtilities
+namespace TEMPESTCore
 {
     public class SetAnimatorBoolean : MonoBehaviour
     {

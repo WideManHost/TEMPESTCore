@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ULTRAKILL;
 using UnityEngine;
 
-namespace WideUtilities
+namespace TEMPESTCore
 {
     /// <summary>
     /// Checks if this EnemyIdentifier is a puppet, if it is then it fires an ultrakill event.

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-namespace WideUtilities
+namespace TEMPESTCore
 {
     [System.Serializable]
     public class DifficultyVariance

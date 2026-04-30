@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace WideUtilities
+namespace TEMPESTCore
 {
     /// <summary>
     /// Unparents self on destroy

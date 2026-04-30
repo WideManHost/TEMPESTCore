@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace WideUtilities
+namespace TEMPESTCore
 {
     /// <summary>
     /// Just a base script for me to use whenever hines wasnts something to have on start/update and whatever functionality.

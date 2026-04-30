@@ -1,5 +1,5 @@
 using UnityEngine;
-namespace WideUtilities
+namespace TEMPESTCore
 {
     [System.Serializable]
     public class EnrageLight

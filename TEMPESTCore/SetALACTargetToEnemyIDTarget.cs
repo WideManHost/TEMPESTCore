@@ -2,24 +2,26 @@
 using System.Collections.Generic;
 using ULTRAKILL;
 using UnityEngine;
-namespace WideUtilities
+
+namespace TEMPESTCore
 {
-    public class SetFollowToEnemyIdentifierTarget : ActiveStateChecker
+    public class SetALACTargetToEnemyIDTarget : ActiveStateChecker
     {
-        public Follow follow;
+        public AlwaysLookAtCamera alwaysLookAtCamera;
         public EnemyIdentifier targetIdentifier;
 
         public override void FireBehavior() => SetTarget();
 
         public void SetTarget()
         {
-            if (follow == null)
-                throw new NullReferenceException("Follow is set to null, cannot set Follow Target if it's null!");
+            if (alwaysLookAtCamera == null)
+                throw new NullReferenceException("alwaysLookAtCamera is set to null, cannot set alwaysLookAtCamera Target if it's null!");
 
             if (targetIdentifier == null)
                 throw new NullReferenceException("TargetIdentifier is null! cannot set follow Target if it's null!");
 
-            follow.target = targetIdentifier.target.targetTransform;
+
+            alwaysLookAtCamera.target = targetIdentifier.target;
         }
     }
 }

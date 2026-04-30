@@ -1,4 +1,4 @@
-namespace WideUtilities
+namespace TEMPESTCore
 {
     [System.Flags]
     public enum DifficultyRequirement

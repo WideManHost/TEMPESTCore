@@ -2,7 +2,7 @@
 using ULTRAKILL;
 using UnityEngine;
 
-namespace WideUtilities
+namespace TEMPESTCore
 {
     /// <summary>
     /// Copies an EnemyIdentifier's Radiance/buff information and applies it to this EnemyIdentifier.

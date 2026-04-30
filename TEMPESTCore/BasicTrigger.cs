@@ -3,7 +3,7 @@ using UnityEngine;
 using ULTRAKILL;
 using UnityEngine.Events;
 
-namespace WideUtilities
+namespace TEMPESTCore
 {
     /// <summary>
     /// Basic Trigger that fires events based on tags, and also different interactions.

@@ -4,7 +4,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace WideUtilities
+namespace TEMPESTCore
 {
     /// <summary>
     /// Fires an event when the projectile hits an enemy

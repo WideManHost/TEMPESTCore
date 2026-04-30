@@ -1,5 +1,5 @@
 using System;
-namespace WideUtilities
+namespace TEMPESTCore
 {
     [Flags]
     public enum EnemyEventFlags

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ULTRAKILL;
 using UnityEngine;
 
-namespace WideUtilities
+namespace TEMPESTCore
 {
     public class InstantiateToEnemyIdentifierTarget : ActiveStateChecker
     {

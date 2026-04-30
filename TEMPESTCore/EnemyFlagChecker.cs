@@ -1,6 +1,6 @@
 using UnityEngine;
 using ULTRAKILL.Cheats;
-namespace WideUtilities
+namespace TEMPESTCore
 {
 
     [System.Serializable]

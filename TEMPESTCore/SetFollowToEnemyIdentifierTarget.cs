@@ -4,6 +4,9 @@ using ULTRAKILL;
 using UnityEngine;
 namespace TEMPESTCore
 {
+    /// <summary>
+    /// wade
+    /// </summary>
     public class SetFollowToEnemyIdentifierTarget : ActiveStateChecker
     {
         public Follow follow;

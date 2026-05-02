@@ -3,37 +3,47 @@ using UnityEngine;
 
 namespace TEMPESTCore
 {
+    /// <summary>
+    /// Class for timed events within EnemyIdentifier, checks flags too
+    /// </summary>
     [System.Serializable]
-    public class EnemyTimedEvent
+    public class SimpleTimedEvent
     {
         [Header("Timed Event")]
         public bool activated;
-        public string eventName;
+        public int eventID;
         public bool deactivateOnTimerExpire;
         public DifficultyVariance difficultyVariance = new DifficultyVariance();
-        public EnemyEventFlags flags;
-        public DifficultyRequirement difficultyRequirement;
+        public Requirements requirements;
+        [Space(10f)]
         private float _timer;
         [Tooltip("X: Min Time, Y: Max Time")]
         public Vector2 TimerRange;
         public UltrakillEvent onTimerExpire;
         private float _currentMultiplier = 1f;
-        private EnemyFlagChecker _flagChecker;
-        public void Initialize(EnemyIdentifier eid, Enemy enemy)
+
+#if UNITY_EDITOR
+        [SerializeField] private Comment comment;
+#endif
+
+        public void Initialize(EnemyIdentifier eid, IEnrage enemy)
         {
-            _flagChecker = new EnemyFlagChecker(eid, enemy);
+            if (requirements == null) requirements.Initialize(eid, enemy);
             _currentMultiplier = difficultyVariance.Calculate(1f);
+            Randomize();
         }
         public bool Validate()
         {
-            if (!activated || _flagChecker == null)
+            if (!activated || requirements == null)
                 return false;
 
-            return _flagChecker.CheckForFlags(flags);
+            return requirements.Validate();
         }
         public void Tick()
         {
-            if (!activated || _flagChecker == null)
+            if (!activated || requirements == null)
+                return;
+            if (!Validate())
                 return;
             _timer -= Time.deltaTime * _currentMultiplier;
 
@@ -44,7 +54,7 @@ namespace TEMPESTCore
         }
         private void ExpireTimer()
         {
-            if (_flagChecker.CheckForFlags(flags)) onTimerExpire?.Invoke();
+            if (Validate()) onTimerExpire?.Invoke();
             if (deactivateOnTimerExpire) activated = false;
             else Randomize();
         }
@@ -55,6 +65,15 @@ namespace TEMPESTCore
 
             _timer = Random.Range(min, max);
         }
-
+        public void Deactivate(int num)
+        {
+            if (this.eventID != num) return;
+            activated = false;
+        }
+        public void Activate(int num)
+        {
+            if (this.eventID != num) return;
+            activated = true;
+        }
     }
 }

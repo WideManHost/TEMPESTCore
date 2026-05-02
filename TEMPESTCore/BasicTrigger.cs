@@ -6,7 +6,7 @@ using UnityEngine.Events;
 namespace TEMPESTCore
 {
     /// <summary>
-    /// Basic Trigger that fires events based on tags, and also different interactions.
+    /// Basic Trigger that fires events based on tags, and also different interactions. - wade
     /// </summary>
     public class BasicTrigger : MonoBehaviour
     {

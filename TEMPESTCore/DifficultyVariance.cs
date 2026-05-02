@@ -45,7 +45,6 @@ namespace TEMPESTCore
                     multiplier = 1f;
                     break;
             }
-
             return baseValue * multiplier;
         }
     }

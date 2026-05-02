@@ -7,6 +7,9 @@ namespace TEMPESTCore
 {
     public class SetAnimatorBoolean : MonoBehaviour
     {
+        /// <summary>
+        /// oh yeah this was me right - h
+        /// </summary>
         public Animator anim;
         private void Awake()
         {

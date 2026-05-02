@@ -2,7 +2,7 @@ using System;
 namespace TEMPESTCore
 {
     [Flags]
-    public enum EnemyEventFlags
+    public enum EnemyFlags
     {
         None = 0,
         NotIfDead = 1 << 0,

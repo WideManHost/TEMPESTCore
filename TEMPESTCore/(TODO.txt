@@ -1,0 +1,25 @@
+    /// EnemyEvents.cs: Create DifficultyDependant/SettingByDifficulty class that auto sets a value depending on difficulty, 
+    /// EnemyEvents.cs: find a better name for EnemyEvents
+    /// EnemyEvents.cs: create a class that handles animator speed overrides
+    /// EnemyEvents.cs: create a class that holds a list of instantiables that you can create by ID like AnimationEvent to UltrakillEvent
+    /// that operates on the exact same logic as mortar but you can call it from animation events
+    /// this way making attacks that track the player in some way will become a lot easier
+    /// Fix whatever the fuck is going on with my puppet silencer thing
+    /// Fix the ghosted enemies being able to be damaged by ricoshots (will also need the harmony override probably
+    /// Add Comments and like signatures n shit to stuff i've worked on for wade to look at
+    /// use Harmony to create a damage type detection system -- alternatively just use "eid.hitter" need to look more into it
+    /// make an AddComponentToTarget script for debug
+    /// make a way for an enemy to heal from damaging the player (relevant for michael)
+    /// create a script for the shepherd
+
+    ///LONGTERM
+    ///Create Custom Enemy Tag System 
+    ///Create CustomTerminalEntryInjector with a ScriptableObject that holds a boolean that is stored in Angry as a campaign Var to help 
+    /// ease making terminal entries in rude
+    ///Create a custom air motion machine (probably wont be too necessary given drone and parries being solved)
+    ///Create a ForceUnenrageable script
+    ///Create more custom enemy states (like ghost but different)
+    ///Create Accesible Custom PowerUp Making
+    ///Statemachines
+    ///EnemyScript.cs Template with settings on how to handle damage and events 
+    

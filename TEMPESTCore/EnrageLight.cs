@@ -1,6 +1,9 @@
 using UnityEngine;
 namespace TEMPESTCore
 {
+    /// <summary>
+    /// Helper class that helps SimpleEnrage change the color of a light
+    /// </summary>
     [System.Serializable]
     public class EnrageLight
     {

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace TEMPESTCore
 {
     /// <summary>
-    /// Just a base script for me to use whenever hines wasnts something to have on start/update and whatever functionality.
+    /// Just a base script for me to use whenever hines wasnts something to have on start/update and whatever functionality. - wade
     /// </summary>
     public abstract class ActiveStateChecker : MonoBehaviour
     {

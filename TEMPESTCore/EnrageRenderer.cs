@@ -1,6 +1,9 @@
 using UnityEngine;
 namespace TEMPESTCore
 {
+    /// <summary>
+    /// Helper class that helps SimpleEnrage change the materials of a mesh
+    /// </summary>
     [System.Serializable]
     public class EnrageRenderer
     {

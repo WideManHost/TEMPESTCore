@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace TEMPESTCore
 {
+    /// <summary>
+    /// Set Object Transform to this object's parent
+    /// </summary>
     public class SetParentToObjectsParent : ActiveStateChecker
     {
         [Tooltip("The Object that will become the selected object's sibling in the Hierarchy.")]
@@ -12,10 +15,11 @@ namespace TEMPESTCore
 
         public override void FireBehavior() => ChangeObjectHierarchy();
 
-
-        public void ChangeObjectHierarchy()
+        /// improved for versatility, now this can be called through a unityEvent - hines
+        public void ChangeObjectHierarchy(Transform child = null)
         {
-            transform.parent = targetTransformToParent.parent;
+            if (child = null) transform.parent = targetTransformToParent.parent;
+            else transform.parent = child.parent;
         }
     }
 }

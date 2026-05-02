@@ -6,7 +6,7 @@ using UnityEngine;
 namespace TEMPESTCore
 {
     /// <summary>
-    /// Applies a style action, registers the style action if its not already registered.
+    /// Applies a style action, registers the style action if its not already registered. - wade
     /// </summary>
     public class ApplyStyleAction : ActiveStateChecker
     {

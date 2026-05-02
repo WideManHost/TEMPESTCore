@@ -7,7 +7,7 @@ using UnityEngine.Events;
 namespace TEMPESTCore
 {
     /// <summary>
-    /// Fires an event when the projectile hits an enemy
+    /// Fires an event when the projectile hits an enemy - wade
     /// </summary>
     public class ProjectileFireEventOnActorHit : MonoBehaviour
     {

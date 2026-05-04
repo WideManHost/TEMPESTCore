@@ -35,8 +35,10 @@ namespace TEMPESTCore
     public class Ghosted : MonoBehaviour
     {
         /// <summary>
+        /// THIS IS TOO MUCH IM DEPRECATING THIS
         /// i want to die
         /// disables collisions, swaps material, changes a few flags onEID
+        /// 
         /// </summary>
         private Enemy _en;
         private EnemyIdentifier _eid;
@@ -49,19 +51,23 @@ namespace TEMPESTCore
         private List<GameObject> _activeParticles = new List<GameObject>();
 
         private GameObject _deathCopyInstance;
+        private GameObject _blueprintGhost;
         private Collider _col;
         private GhostManager _manager;
         private List<Vector3> _cachedColSizes = new List<Vector3>();
 
-        private bool _isAborting;
+        [HideInInspector]public bool isAborting;
 
 
         [Header("Settings")]
+        public bool ready;
         public bool onStart = false;
         public bool ghosted;
         public bool ignoreVisuals;
         public bool dontOverrideEnemySettings;
         public bool dontOverrideCountAsKill;
+        //hidden because logic explicitly overrides this and this needs to be changeable - h
+        [HideInInspector]public GhostType type;
 
         [Header("Effects")]
         public Material ghostedMaterial;
@@ -79,6 +85,7 @@ namespace TEMPESTCore
         public bool isCopy;
         public bool invincible; 
         public bool dontDieWithParent;
+        [HideInInspector]public GameObject original;
 
         [Header("LifeTime")]
         public bool timerOnSpawn;
@@ -113,22 +120,42 @@ namespace TEMPESTCore
             CacheColliders();
             CacheRenderers();
             CacheOriginalStates();
-
-            if (_eid != null)
-                _eid.onDeath.AddListener(OnDeath);
-            if (isCopy || onStart)
-                Toggle(true);
+            if (!isCopy || type != GhostType.Ghostable)
+            {
+                type = GhostType.Ghostable;
+                CreateBlueprint();
+                if (_eid != null)
+                    _eid.onDeath.AddListener(OnDeath);
+            }
+            else 
+            {  
+                if (type == GhostType.Instance) _manager.RegisterGhost(this.parent, this);
+            }
         }
         private void OnDeath()
         {
             if (this.isCopy || _manager == null) return;
 
-            if (_deathCopyInstance != null)
+            if (_deathCopyInstance != null && type == GhostType.Ghostable)
             {
-                _manager.RequestSpawn(ghostSpawnDelay, _deathCopyInstance, transform.position, transform.rotation, parent);
+                _manager.RequestSpawn(ghostSpawnDelay, _deathCopyInstance, transform.position, transform.rotation, _eid);
             }
         }
-
+        private void CreateBlueprint()
+        {
+            // Create the template
+            _blueprintGhost = Instantiate(gameObject, transform.position, transform.rotation);
+            // set copy immediately as the create blueprint command runs on awake
+            var blueprintGhost = _blueprintGhost.GetComponent<Ghosted>();
+            if (blueprintGhost != null) { blueprintGhost.isCopy = true; blueprintGhost.type = GhostType.Blueprint; blueprintGhost.parent = this.parent; }
+            // the rest
+            _blueprintGhost.name = $"{gameObject.name}_Blueprint";
+            _blueprintGhost.SetActive(false);
+            blueprintGhost.original = this.original == null ? this.gameObject : this.original;
+            _manager.RegisterGhost(blueprintGhost.parent, blueprintGhost);
+            // Parent to Gorezone so it can be destroyed on CheckpointRestart or remain disabled alongside the room its in.
+            if (_manager != null) _blueprintGhost.transform.SetParent(_gz.transform);
+        }
         private void Start()
         {
             if (_manager == null) InitializeManager();
@@ -138,7 +165,7 @@ namespace TEMPESTCore
             if (!isCopy)
             {
                 CreateDeathCopy();
-                if (onStart && !isCopy) Toggle(true);
+                if (onStart) Toggle(true);
             }            
         }
         private void InitializeManager()
@@ -239,47 +266,31 @@ namespace TEMPESTCore
         //i can never find this the first try god fucking help me for not sorting these in alphabetical order ;-;
         public void Toggle(bool value)
         {
-            ghosted = value;
-
+            // 1, check if ghost is valid 
             if (value && isCopy && !dontDieWithParent && !invincible  && (parent == null || parent.dead))
             {
-                _isAborting = true;
+                isAborting = true;
                 Destroy(gameObject);
                 return;
             }
+
+            ghosted = value;
 
             if (value)
             {
 
                 if (isCopy) CacheRenderers();
 
-                if (ghostedStartEffect != null && !_isAborting)
+                if (ghostedStartEffect != null && !isAborting)
                     Instantiate(ghostedStartEffect, transform.position, Quaternion.identity);
 
                 if (!infinite && !invincible && (timerOnSpawn || timerActive))
                 {
                     StartGhostTimer();
                 }
-                //HERE'S THE REAL GOOD PART :SLIME:
-                //wait nvm sob
-                //var spoof = GetComponent<PuppetSpoof>() ?? gameObject.AddComponent<PuppetSpoof>();
-                //spoof.active = true;
-                //if (_eid != null) _eid.puppet = true;
-            }
-            else
-            {
-                //if (TryGetComponent<PuppetSpoof>(out var spoof))
-                //{
-                //    spoof.active = false;
-                //    Destroy(spoof);
-                //}
-                //ok this really didnt work the way i wanted i'll try some other day idfk 
-                //originally the logic that was supposed to make the EnemyIdentifier display that it was puppeted while suppressing 
-                //its behaviours through bepinex harmonylibrary but i couldnt make it work help im so tired boss - hines
-                if (_eid != null) _eid.puppet = false;
             }
             ApplyColliderState(value);
-            if (dontOverrideEnemySettings)
+            if (!dontOverrideEnemySettings)
             {
                 ApplyEnemyIdentifierState(value);
                 ApplyEnemyState(value);
@@ -425,13 +436,13 @@ namespace TEMPESTCore
 
         private void OnDestroy()
         {
-            if (_isAborting) return;
+            ClearParticles();
+            if (isAborting) return;
+            if (parent == null) return;
             if (ghostedExitEffect != null)
             {
                 Instantiate(ghostedExitEffect, transform.position, Quaternion.identity);
             }
-
-            ClearParticles();
         }
     }
 }

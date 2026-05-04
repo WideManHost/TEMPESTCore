@@ -11,15 +11,21 @@ namespace TEMPESTCore
     /// TODO: uhhhhh 02.05.26 fuck we are almost halfway through the year
     /// moved TODO to TODO.txt
     /// </summary>
-    public class SimpleEnemyEvents : MonoBehaviour
+    public class SimpleEvents : MonoBehaviour
     {
         public bool notIfDead;
-        public List<EnemyToUltrakillEvent> events;
-        public List<SimpleTimedEvent> timedEvents;
-        public List<EnemyAudio> audios;
+        public List<SimpleUltrakillEvent> events;
+        public List<SimplePeriodicEvent> timedEvents;
+        public List<SimpleAudioPlayer> audios;
+        public List<SimpleInstantiate> toInstantiate;
         public List<HinesEventProcessor> globalEvents;
-        public PlayerDeadChecker deadChecker;
+        public List<SimpleInstantiate> objectsToInstantiate;
+        [HideInInspector]public List<GameObject> instantiatedObjects;
+        public bool clearInstantiatedOnDeath;
         public UltrakillEvent onPlayerDeath;
+        public UltrakillEvent onDestroy;
+        public GameObject instantiateOnDestroy;
+        public PlayerDeadChecker deadChecker;
 
 
         private AudioSource _aud;
@@ -27,10 +33,10 @@ namespace TEMPESTCore
         private EnemyIdentifier _eid;
         private IEnrage _ienrage;
         private bool _isAllowed => !(notIfDead && _eid != null && _eid.dead);
-        private int _currentDifficulty; // TO ADD I AUHUIOERNGAUIEGNUI I NEED TO ADD SUPPORT FOR DIFFICULTIES FUUUUUUUUUUUUCK
+        private bool _isQuitting;
 
-
-        private SubtitleController subtitleController;
+        void OnApplicationQuit() => _isQuitting = true;
+        //dude i lowk keep fucking adding new methods whenever i gotta be organized
         private void Awake()
         {
             _eid = GetComponent<EnemyIdentifier>();
@@ -45,46 +51,95 @@ namespace TEMPESTCore
             if (events != null)
             {
                 if (_eid != null)
-                foreach (EnemyToUltrakillEvent e in events)
+                foreach (SimpleUltrakillEvent e in events)
                 {
-                    e.Initialize(_eid, _ienrage);
+                    e.Initialize(_eid, this, _ienrage);
                 }
             }
             if (timedEvents != null)
             {
                 if(_eid != null)
-                foreach (SimpleTimedEvent e in timedEvents)
+                foreach (SimplePeriodicEvent e in timedEvents)
                 {
-                    e.Initialize(_eid, _ienrage);
+                    e.Initialize(_eid, this, _ienrage);
                 }
             }
             if (audios != null)
             {
                 if (_aud == null) return;
                 _gz = GetComponentInParent<GoreZone>();
-                foreach (EnemyAudio a in audios)
+                foreach (SimpleAudioPlayer a in audios)
                 {
-                    a.Initialize(_aud, _gz);
+                    a.InitializeAudio(_aud, _gz);
+                }
+            }
+            if (toInstantiate != null)
+            {
+                if(_eid == null || _gz == null)
+                foreach (SimpleInstantiate i in toInstantiate)
+                {
+                    i.InitializeInst(_eid, _gz, _ienrage, this);
                 }
             }
         }
 
         private void Start()
         {
-            subtitleController = MonoSingleton<SubtitleController>.Instance;
             deadChecker.Initialize();
+
+        }
+        void OnEnable()
+        {
+            HinesEventBus.OnCombatEvent += CheckHinesEvent;
+            _eid.onDeath.AddListener(OnDeathOrDestroy);
+        }
+        void OnDestroy()
+        {
+            onDestroy.Invoke();
+            if (instantiateOnDestroy != null)
+            {
+                GameObject newObject = Instantiate(instantiateOnDestroy, transform.position, transform.rotation);
+            }
+            OnDeathOrDestroy();
+        }
+        void OnDisable()
+        {
+            HinesEventBus.OnCombatEvent -= CheckHinesEvent;
+            _eid.onDeath.RemoveListener(OnDeathOrDestroy);
+        }
+        public void Instantiate(int num)
+        {
+            instantiatedObjects.RemoveAll(item => item == null);
+            if (toInstantiate == null) return;
+            toInstantiate.RemoveAll(item => item == null);
+            foreach (SimpleInstantiate item in toInstantiate)
+            {
+                item.Instantiate(num);
+            }
+        }
+        void OnDeathOrDestroy()
+        {
+            if (clearInstantiatedOnDeath)
+            {
+                if(instantiatedObjects != null && instantiatedObjects.Count > 0)
+                foreach (GameObject g in instantiatedObjects)
+                {
+                    if (g != null) Destroy(g);
+                }
+            }
+            instantiatedObjects.Clear();
         }
         private void Update()
         {
             if (notIfDead && _eid != null && _eid.dead) return;
             if (timedEvents != null)
             {
-                foreach (SimpleTimedEvent e in timedEvents)
+                foreach (SimplePeriodicEvent e in timedEvents)
                 {
                     e.Tick();
                 }
             }
-
+            if(deadChecker != null) deadChecker.Tick();
         }
         public void CallUltrakillEvent(int num)
         {
@@ -125,12 +180,22 @@ namespace TEMPESTCore
             if (_isAllowed) return;
             if (audios != null)
             {
-                foreach (EnemyAudio a in audios)
+                foreach (SimpleAudioPlayer a in audios)
                 {
                     a.Play(num);
                 }
             }
         }
-
+        public void HinesEvent(string keyword)
+        {
+            HinesEventBus.GlobalHinesEvent(keyword);
+        }
+        private void CheckHinesEvent(string keyword)
+        {
+            foreach (var listener in globalEvents)
+            {
+                listener.CallEvent(this, keyword);
+            }
+        }
     }
 }

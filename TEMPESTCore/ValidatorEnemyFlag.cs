@@ -19,7 +19,7 @@ namespace TEMPESTCore
         public override void Initialize(EnemyIdentifier eid, IEnrage enrage)
         {
             _eid = eid;
-            _enrageComponent = enrage;
+            if(enrage != null)_enrageComponent = enrage;
         }
 
         public override bool Validate(EnemyFlags flags, DifficultyRequirement difficulty)

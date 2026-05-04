@@ -16,15 +16,15 @@ namespace TEMPESTCore
 
         private void OnEnable()
         {
-            HinesEventBus.OnCombatEvent += CheckCombatEvent;
+            HinesEventBus.OnCombatEvent += CheckHinesEvent;
         }
 
         private void OnDisable()
         {
-            HinesEventBus.OnCombatEvent -= CheckCombatEvent;
+            HinesEventBus.OnCombatEvent -= CheckHinesEvent;
         }
 
-        private void CheckCombatEvent(string keyword)
+        private void CheckHinesEvent(string keyword)
         {
             foreach (var listener in listeners)
             {

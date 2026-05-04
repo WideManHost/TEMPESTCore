@@ -18,7 +18,7 @@ namespace TEMPESTCore
         private ValidatorEnemyFlag enemy;
         private ValidatorDifficulty difficulty;
 
-        public void Initialize(EnemyIdentifier eid, IEnrage enrage)
+        public void Initialize(EnemyIdentifier eid, IEnrage enrage = null)
         {
             difficulty.Initialize(eid, enrage);
             enemy.Initialize(eid, enrage);
@@ -30,6 +30,13 @@ namespace TEMPESTCore
             if (!enemy.Validate(enemyFlags, difficultyFlags)) return false;
 
             return true;
+        }
+        //put this here coz its like supposed to be default behavior, just in case.
+        //either way you can manually set this to off
+        public void OnValidate()
+        {
+            enemyFlags |= EnemyFlags.NotIfDead;
+            enemyFlags |= EnemyFlags.NotIfNoTarget;
         }
     }
 }

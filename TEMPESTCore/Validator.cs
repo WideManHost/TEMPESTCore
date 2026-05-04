@@ -9,6 +9,6 @@ namespace TEMPESTCore
     public abstract class Validator
     {
         public abstract bool Validate(EnemyFlags flags, DifficultyRequirement difficulty);
-        public abstract void Initialize(EnemyIdentifier eid, IEnrage enrage);
+        public abstract void Initialize(EnemyIdentifier eid, IEnrage enrage = null);
     }
 }

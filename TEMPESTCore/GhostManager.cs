@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -9,68 +11,115 @@ namespace TEMPESTCore
     /// Manager for ghost enemies, WIP its still a bit complex i plan to recreate the medium and this is a crucial component
     /// i kinda stopped understanding how this thing works halfway through it needs refactoring
     /// its a bit of an experiment on my end on how to handle stuff like this - h
+    /// man we not doing this
     /// </summary>
+    public enum GhostType
+    {
+        Parent = 0,
+        Ghostable = 1,
+        Blueprint = 2,
+        Instance = 3
+    }
+
     public class GhostManager : MonoBehaviour
     {
         public bool debugMode = false;
+        public bool destroyOrphans = true;
 
         // Tracks: Parent EID -> List of Ghosted components associated with it
         [SerializeField] private Dictionary<EnemyIdentifier, List<Ghosted>> _registry = new Dictionary<EnemyIdentifier, List<Ghosted>>();
+        private HashSet<Ghosted> _trackedGhosts = new HashSet<Ghosted>();
+        private List<Ghosted> _unparentedGhosts = new List<Ghosted>();
         [SerializeField] private List<Coroutine> _activeSpawnRoutines = new List<Coroutine>();
 
         #region Core Logic
-
-        public void RegisterGhost(EnemyIdentifier parent, Ghosted ghost)
+        /// <summary>
+        /// Associates a ghost with a parent enemy. If no parent is provided, 
+        /// the ghost is either tracked as an orphan or destroyed based on settings.
+        /// </summary>
+        public void RegisterGhost(EnemyIdentifier parentRef, Ghosted ghost)
         {
-            if (parent == null || ghost == null) return;
+            if (ghost == null) return;
 
-            if (!_registry.ContainsKey(parent))
+            //handle orphan ghosts
+            if (parentRef == null)
             {
-                _registry.Add(parent, new List<Ghosted>());
-                parent.onDeath.AddListener(() => OnParentDeath(parent));
-                if (debugMode) Debug.Log($"<color=cyan>[GhostManager]</color> Subscribed to new Parent: {parent.gameObject.name}");
+                if (destroyOrphans)
+                {
+                    Destroy(ghost.gameObject);
+                }
+                else if (!_unparentedGhosts.Contains(ghost))
+                {
+                    _unparentedGhosts.Add(ghost);
+                }
+                return;
             }
 
-            if (!_registry[parent].Contains(ghost))
+            //handle parent registry
+            if (!_registry.ContainsKey(parentRef))
             {
-                _registry[parent].Add(ghost);
-                if (debugMode) Debug.Log($"<color=cyan>[GhostManager]</color> Registered Ghost {ghost.gameObject.name} to Parent {parent.gameObject.name}");
+                _registry.Add(parentRef, new List<Ghosted>());
+                parentRef.onDeath.AddListener(() => OnParentDeath(parentRef));
             }
+
+            _trackedGhosts.Add(ghost);
+
+            //register parent child relations with the ghost.
+            if (!_registry[parentRef].Contains(ghost))
+                _registry[parentRef].Add(ghost);
         }
 
-        public void RequestSpawn(float delay, GameObject copy, Vector3 pos, Quaternion rot, EnemyIdentifier parentRef)
+        public void RequestSpawn(float delay, GameObject copy, Vector3 pos, Quaternion rot, EnemyIdentifier deadGhostable)
         {
             if (debugMode) Debug.Log($"<color=cyan>[GhostManager]</color> Spawn requested for {copy?.name} with delay {delay}s");
-            _activeSpawnRoutines.Add(StartCoroutine(SpawnRoutine(delay, copy, pos, rot, parentRef)));
+            _activeSpawnRoutines.Add(StartCoroutine(SpawnRoutine(delay, copy, pos, rot, deadGhostable)));
         }
 
-        private IEnumerator SpawnRoutine(float delay, GameObject copy, Vector3 pos, Quaternion rot, EnemyIdentifier parentRef)
+        private IEnumerator SpawnRoutine(float delay, GameObject copy, Vector3 pos, Quaternion rot, EnemyIdentifier requester, Ghosted ghostable = null)
         {
-            if (delay > 0f) yield return new WaitForSeconds(delay);
-
-            if (copy != null)
+            GhostType thisType;
+            if (ghostable == null) thisType = GhostType.Parent;
+            else thisType = ghostable.type;
+            if (requester != null)
             {
-                copy.transform.SetPositionAndRotation(pos, rot);
-                copy.SetActive(true);
-
-                yield return new WaitForEndOfFrame();
-
-                if (copy.TryGetComponent<Ghosted>(out var ghost))
+                if (thisType == GhostType.Ghostable)
                 {
-                    // Check if parent died during the spawn delay
-                    if (!ghost.dontDieWithParent && (parentRef == null || parentRef.dead))
+                    if (delay > 0f) yield return new WaitForSeconds(delay);
+
+                    //Check if the copy got somehow destroyed before the timer expired
+                    if (copy == null) { yield break; }
+
+                    //Validates that this is a ghost and abort if it fails
+                    if (!ghostable.dontDieWithParent)
                     {
-                        if (debugMode) Debug.Log($"<color=red>[GhostManager]</color> Parent died before spawn: Destroying {copy.name}");
-                        Destroy(copy);
-                        yield break;
+                        if (requester == null || requester.dead)
+                        {
+                            ghostable.isAborting = true;
+                            Destroy(copy);
+                            yield break;
+                        }
+                        #region INITIALIZING
+                        //sets the copy's transform to its current position after performing the checks
+                        copy.transform.SetPositionAndRotation(pos, rot);
+
+                        //Makes sure its registered before being enabled
+                        ghostable.parent = requester;
+                        RegisterGhost(requester, ghostable);
+
+                        copy.SetActive(true);
+                        ghostable.Toggle(true);
                     }
-
-                    ghost.Toggle(true);
-                    RegisterGhost(parentRef, ghost);
+                        #endregion
                 }
+                else
+                {
+                    if (thisType == GhostType.Parent)
+                    {
 
-                if (debugMode) Debug.Log($"<color=cyan>[GhostManager]</color> Successfully birthed ghost: {copy.name}");
+                    }
+                }
             }
+
         }
 
         private void OnParentDeath(EnemyIdentifier parent)
@@ -84,7 +133,16 @@ namespace TEMPESTCore
                 var ghost = ghosts[i];
                 if (ghost == null) continue;
 
-                if (ghost.dontDieWithParent) continue;
+                if (ghost.dontDieWithParent)
+                {
+                    continue;
+                }
+
+                if (ghost.type == GhostType.Blueprint)
+                {
+                    Destroy(ghost.gameObject);
+                    continue;
+                }
 
                 switch (ghost.parentDeathMode)
                 {
@@ -99,11 +157,12 @@ namespace TEMPESTCore
                         break;
                 }
             }
-
             _registry.Remove(parent);
         }
 
         #endregion
+
+
 
         #region Debug & Utility Methods
 
@@ -190,7 +249,20 @@ namespace TEMPESTCore
             _activeSpawnRoutines.Clear();
             if (debugMode) Debug.Log("<color=yellow>[GhostManager]</color> All pending spawns cancelled.");
         }
+        public bool CanResurrect(Ghosted blueprint)
+        {
+            // 1. Is it a blueprint?
+            if (blueprint.type != GhostType.Blueprint) return false;
 
+            // 2. Is the parent alive?
+            if (blueprint.parent == null || blueprint.parent.dead) return false;
+
+            // 3. Optional: Find the "original" owner and see if they are dead
+            var originalEID = blueprint.original.GetComponent<EnemyIdentifier>();
+            if (originalEID == originalEID.dead || originalEID == false) return false;
+
+            return true;
+        }
         #endregion
 
         private void OnDisable()

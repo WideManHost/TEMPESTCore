@@ -64,9 +64,6 @@ namespace TEMPESTCore
             Debug.Log($"Detected external material change on {renderer.name}. Synced backup.");
         }
 
-
-
-#if UNITY_EDITOR
         public void OnValidate()
         {
             if (renderer == null) { _previousRenderer = null; return; }
@@ -86,8 +83,6 @@ namespace TEMPESTCore
                 Debug.Log($"EnrageRenderer: Auto-populated materials from {renderer.name}.");
             }
         }
-    }
-#endif
 
     }
 }

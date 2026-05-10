@@ -1,3 +1,4 @@
+using Logic;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,15 +14,16 @@ namespace TEMPESTCore
     /// </summary>
     public class SimpleEvents : MonoBehaviour
     {
-        public bool notIfDead;
         public List<SimpleUltrakillEvent> events;
+        public bool notUpdateIfDead;
         public List<SimplePeriodicEvent> timedEvents;
         public List<SimpleAudioPlayer> audios;
         public List<SimpleInstantiate> toInstantiate;
         public List<HinesEventProcessor> globalEvents;
-        public List<SimpleInstantiate> objectsToInstantiate;
-        [HideInInspector]public List<GameObject> instantiatedObjects;
+        public List<SimpleEventOnEnterRadius> onEnterRadius;
+        [HideInInspector] public List<GameObject> instantiatedObjects;
         public bool clearInstantiatedOnDeath;
+        public List<SimpleApplyStyle> styleBonuses;
         public UltrakillEvent onPlayerDeath;
         public UltrakillEvent onDestroy;
         public GameObject instantiateOnDestroy;
@@ -32,7 +34,7 @@ namespace TEMPESTCore
         private GoreZone _gz;
         private EnemyIdentifier _eid;
         private IEnrage _ienrage;
-        private bool _isAllowed => !(notIfDead && _eid != null && _eid.dead);
+        private Enemy _en;
         private bool _isQuitting;
 
         void OnApplicationQuit() => _isQuitting = true;
@@ -43,6 +45,7 @@ namespace TEMPESTCore
             _ienrage = GetComponent<IEnrage>();
             _aud = GetComponent<AudioSource>();
             _gz = GetComponentInParent<GoreZone>();
+            _en = GetComponent<Enemy>();
             if (_eid == null) Debug.LogError("No Enemy Identifier Found on ", this);
 
             if (_ienrage == null) Debug.Log("No Enrageable Component Found on ", this);
@@ -51,18 +54,18 @@ namespace TEMPESTCore
             if (events != null)
             {
                 if (_eid != null)
-                foreach (SimpleUltrakillEvent e in events)
-                {
-                    e.Initialize(_eid, this, _ienrage);
-                }
+                    foreach (SimpleUltrakillEvent e in events)
+                    {
+                        e.Initialize(_eid, this, _ienrage);
+                    }
             }
             if (timedEvents != null)
             {
-                if(_eid != null)
-                foreach (SimplePeriodicEvent e in timedEvents)
-                {
-                    e.Initialize(_eid, this, _ienrage);
-                }
+                if (_eid != null)
+                    foreach (SimplePeriodicEvent e in timedEvents)
+                    {
+                        e.Initialize(_eid, this, _ienrage);
+                    }
             }
             if (audios != null)
             {
@@ -75,10 +78,17 @@ namespace TEMPESTCore
             }
             if (toInstantiate != null)
             {
-                if(_eid == null || _gz == null)
-                foreach (SimpleInstantiate i in toInstantiate)
+                if (_eid == null || _gz == null)
+                    foreach (SimpleInstantiate i in toInstantiate)
+                    {
+                        i.InitializeInst(_eid, _gz, _ienrage, this);
+                    }
+            }
+            if (onEnterRadius != null)
+            {
+                foreach (var e in onEnterRadius)   // removed the broken condition
                 {
-                    i.InitializeInst(_eid, _gz, _ienrage, this);
+                    e.Initialize(_eid, this, _ienrage);
                 }
             }
         }
@@ -102,6 +112,7 @@ namespace TEMPESTCore
             }
             OnDeathOrDestroy();
         }
+
         void OnDisable()
         {
             HinesEventBus.OnCombatEvent -= CheckHinesEvent;
@@ -117,21 +128,29 @@ namespace TEMPESTCore
                 item.Instantiate(num);
             }
         }
+        public void ApplyStyle(int num)
+        {
+            if (styleBonuses == null || events.Count <= 0) return;
+            foreach (var e in styleBonuses)
+            {
+                e.ApplyStyle(num);
+            }
+        }
         void OnDeathOrDestroy()
         {
             if (clearInstantiatedOnDeath)
             {
-                if(instantiatedObjects != null && instantiatedObjects.Count > 0)
-                foreach (GameObject g in instantiatedObjects)
-                {
-                    if (g != null) Destroy(g);
-                }
+                if (instantiatedObjects != null && instantiatedObjects.Count > 0)
+                    foreach (GameObject g in instantiatedObjects)
+                    {
+                        if (g != null) Destroy(g);
+                    }
             }
             instantiatedObjects.Clear();
         }
         private void Update()
         {
-            if (notIfDead && _eid != null && _eid.dead) return;
+            if (notUpdateIfDead && _eid != null && _eid.dead) return;
             if (timedEvents != null)
             {
                 foreach (SimplePeriodicEvent e in timedEvents)
@@ -139,11 +158,10 @@ namespace TEMPESTCore
                     e.Tick();
                 }
             }
-            if(deadChecker != null) deadChecker.Tick();
+            if (deadChecker != null) deadChecker.Tick();
         }
         public void CallUltrakillEvent(int num)
         {
-            if (_isAllowed) return;
             if (events == null || events.Count <= 0) return;
             foreach (var e in events)
             {
@@ -152,7 +170,6 @@ namespace TEMPESTCore
         }
         public void DeactivateTimedEvent(int id)
         {
-            if (_isAllowed) return;
             if (timedEvents == null || timedEvents.Count <= 0) return;
             foreach (var e in timedEvents)
             {
@@ -161,7 +178,6 @@ namespace TEMPESTCore
         }
         public void ActivateTimedEvent(int id)
         {
-            if (_isAllowed) return;
             if (timedEvents == null || timedEvents.Count <= 0) return;
             foreach (var e in timedEvents)
             {
@@ -170,14 +186,12 @@ namespace TEMPESTCore
         }
         public void PlaySound(AudioClip audio)
         {
-            if (_isAllowed) return;
             if (audio == null || _aud == null) return;
             _aud.clip = audio;
             _aud.Play(true);
         }
         public void PlayFromList(int num)
         {
-            if (_isAllowed) return;
             if (audios != null)
             {
                 foreach (SimpleAudioPlayer a in audios)
@@ -197,5 +211,6 @@ namespace TEMPESTCore
                 listener.CallEvent(this, keyword);
             }
         }
+
     }
 }

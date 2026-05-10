@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace TEMPESTCore
 {
     [System.Serializable]
     public abstract class SimpleClassWithRequirements
     {
+        [Tooltip("Describe what this specific module does here.")]
+        public string Title;                 
         public bool activated = true;
         public int id;
+        [SerializeReference]
         public Requirements requirements;
-        [UnityEngine.HideInInspector] public EnemyIdentifier _eid;
+        [Space(20f)]
+        [NonSerialized] public EnemyIdentifier _eid;
         //anti-unityzipbomb-inator 10000
-        [System.NonSerialized] public SimpleEvents _se;
+        [NonSerialized] public SimpleEvents _se;
         public virtual void Initialize(EnemyIdentifier eid, SimpleEvents se, IEnrage enemy = null)
         {
             _se = se;
@@ -38,5 +43,6 @@ namespace TEMPESTCore
         {
             activated = state;
         }
+
     }
 }
